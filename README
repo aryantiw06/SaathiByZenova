@@ -1,0 +1,127 @@
+🩺 SAATHI: IoT-Based Smart Health Monitor & Fall Detection System
+ESP32ArduinoTelegramJSONBin
+
+SAATHI (meaning Companion or Partner in Hindi) is a smart, wearable/desktop IoT-enabled health monitoring and emergency response system built on the ESP32. It tracks critical patient vitals in real time, monitors environmental/body temperature, detects accidental falls, manages medication schedules, and provides immediate emergency SOS capabilities.
+
+SAATHI ensures continuous safety by keeping caregivers updated via automated Telegram alerts and logging real-time telemetry to a cloud dashboard through JSONBin.
+
+📌 Features
+1. Vitals Monitoring
+MAX30102/MAX30105 Sensor: Tracks real-time Heart Rate (BPM) and Oxygen Saturation (SpO2).
+Maxim Algorithm Integration: Computes high-accuracy heart rate and SpO2 using standard buffer processing.
+Signal Quality & Finger Detection: Analyzes I2C signal quality (Excellent/Good/Fair/Poor). Automatically detects when a user's finger is removed and issues a Telegram notification if the sensor remains detached for over 60 seconds.
+2. Intelligent Fall Detection & Safety Countdown
+MPU6050 Accelerometer: Monitors body movement dynamics.
+Double-Threshold Detection: Triggers on a free-fall drop (FREEFALL_THRESHOLD), followed by a high-G impact (IMPACT_THRESHOLD) within a 600ms window.
+10-Second Cancel Window: Upon impact, SAATHI starts a visual 10-second countdown on the LCD and sounds a buzzer. The user can press the SOS/Cancel button to abort false alarms.
+Confirmed Alerts: If the countdown expires without intervention, the system rings a distinct siren, transmits the coordinate-based Google Maps location to caregivers via Telegram, and flags a critical fall on the cloud web dashboard.
+3. Patient Vitals Analytics & Smarter Alerts
+Health Score Algorithm (0–100): Automatically computes an overall health score based on deviations in heart rate, oxygen levels, and temperature.
+Abnormality Persistence (Anti-False Triggering): Alerts are triggered only if abnormal parameters (BPM > 120, SpO2 < 94%, Temp > 38°C) persist for 3 consecutive readings, avoiding panic over single outlier readings.
+Trend Analysis: Maintains a sliding history window (last 10 readings) and recognizes negative physiological trends like Rising Heart Rate or Falling SpO2. Sends Predictive Alerts before values hit emergency levels.
+4. Smart Companion Features
+SOS Button: Instantly triggers an emergency siren and broadcasts an urgent Telegram message with the patient's exact location.
+Medication Reminders: Sound-based and Telegram reminders trigger every 4 hours to keep the patient on schedule.
+Periodic Health Summary: Every 5 minutes (configurable), SAATHI compiles average, minimum, and maximum readings and messages a summary report to the caregiver.
+WiFi Watchdog & Queue: Continually monitors WiFi connectivity. If WiFi drops during an emergency, it queues the pending Telegram alert and dispatches it immediately upon reconnection.
+🔌 Hardware Setup & Pin Mapping
+The system operates on an I2C bus and standard analog/digital GPIOs.
+
+Connection Table
+Component	Pin on ESP32	Description
+ESP32 DevKit V1	-	Main Microcontroller
+MAX30102 (SpO2)	SDA (GPIO 21), SCL (GPIO 22)	Heart Rate & Pulse Oximeter Sensor
+MPU6050	SDA (GPIO 21), SCL (GPIO 22)	3-Axis Accelerometer & Gyroscope
+I2C LCD (16x2)	SDA (GPIO 21), SCL (GPIO 22)	Character display for system states & vitals
+Active Buzzer	GPIO 25	Audio siren, warnings, and alerts
+LM35 Sensor	GPIO 34	Analog Temperature Sensor
+SOS / Cancel Button	GPIO 14	Push Button (Pulled HIGH, active LOW)
+⚙️ Software Architecture
+Mermaid diagram
+🚀 Setup & Installation
+1. Prerequisites & Libraries
+Ensure you have the Arduino IDE (or VSCode + PlatformIO) set up with ESP32 board support. Install the following libraries through the Library Manager:
+
+Wire.h (Built-in)
+LiquidCrystal_I2C by Frank de Brabander
+SparkFun MAX3010x Pulse and Proximity Sensor Library by SparkFun Electronics
+WiFi.h, HTTPClient.h, WiFiClientSecure.h (ESP32 Core Built-ins)
+2. Network & Cloud Credentials
+Open the source code file and configure the credentials for your environment:
+
+WiFi Configuration
+cpp
+
+const char* ssid     = "YOUR_WIFI_SSID";
+const char* password = "YOUR_WIFI_PASSWORD";
+Telegram Bot Setup
+Chat with @BotFather on Telegram to create a bot and retrieve your BOT_TOKEN.
+Retrieve your Telegram account's numeric chat ID using @userinfobot or a similar bot and configure:
+cpp
+
+const String BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN";
+const String CHAT_ID   = "YOUR_TELEGRAM_CHAT_ID";
+JSONBin Configuration (Web Dashboard Integration)
+Register on JSONBin.io.
+Create a new private/public bin containing a template JSON matching SAATHI's structure.
+Retrieve your API Master Key and Bin ID:
+cpp
+
+const String BIN_ID  = "YOUR_BIN_ID";
+const String BIN_KEY = "$2a$10$YOUR_MASTER_KEY";
+Location Coordinates (Mock/Static GPS)
+Configure the hardcoded patient coordinates (or substitute with an active GPS library like TinyGPS++ if integrating a Neo-6M module):
+
+cpp
+
+const float  HARD_LAT       = 22.990508;
+const float  HARD_LNG       = 88.454008;
+const String HARD_MAPS_LINK = "https://maps.app.goo.gl/sVwVgf5MxSxPY9t59";
+🔍 Code Walkthrough & Control Logic
+Non-Blocking Sampling: Vitals collection takes place in a loop that checks for falls and button-presses during each individual sample cycle. This ensures that fall detection is highly responsive, even while calculating complex heart rates.
+Fall Detection Verification State:
+cpp
+
+if (mag < FREEFALL_THRESHOLD) {
+    // Free fall detected, now monitor for impact
+    if (impact_detected_within_window) {
+        // Enter 10-second countdown state
+        // Poll Cancel Button
+        // Send Telegram Alert if not cancelled
+    }
+}
+Abnormality Filters:
+cpp
+
+if (heartRate > 120) highBpmCount++; else highBpmCount = 0;
+if (highBpmCount >= 3) {
+    // Trigger Siren & Telegram Alert
+}
+📈 JSONBin Data Schema
+When updating the web dashboard, SAATHI performs an HTTP PUT request with the following JSON structure:
+
+json
+
+{
+  "bpm": 76,
+  "spo2": 98,
+  "temperature": 36.8,
+  "fall": false,
+  "sos": false,
+  "battery": 100,
+  "latitude": 22.990508,
+  "longitude": 88.454008,
+  "healthScore": 100,
+  "status": "Normal",
+  "trend": "Stable",
+  "bpmHistory": [75, 74, 76, 75, 76],
+  "spo2History": [98, 97, 98, 98, 98],
+  "tempHistory": [36.7, 36.7, 36.8, 36.8, 36.8]
+}
+🤝 Contributing
+Contributions, suggestions, and hardware optimizations are welcome! Feel free to open an issue or submit pull requests to enhance filtering algorithms, add dynamic GPS coordinates, or build custom dashboard frontends.
+
+📄 License
+This project is open-source and licensed under the 
+MIT License
+.
