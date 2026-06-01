@@ -74,8 +74,7 @@ Configure the hardcoded patient coordinates (or substitute with an active GPS li
 
 cpp
 
-const float  HARD_LAT       = 22.990508;
-const float  HARD_LNG       = 88.454008;
+
 const String HARD_MAPS_LINK = "https://maps.app.goo.gl/sVwVgf5MxSxPY9t59";
 🔍 Code Walkthrough & Control Logic
 Non-Blocking Sampling: Vitals collection takes place in a loop that checks for falls and button-presses during each individual sample cycle. This ensures that fall detection is highly responsive, even while calculating complex heart rates.
