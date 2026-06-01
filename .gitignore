@@ -1,0 +1,69 @@
+# ==========================
+# SAATHI BY ZENOVA
+# Git Ignore File
+# ==========================
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# VS Code
+.vscode/
+
+# Arduino IDE temporary files
+build/
+*.o
+*.elf
+*.bin
+*.hex
+
+# ESP32 build artifacts
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Secrets & Credentials
+secrets.h
+config.h
+credentials.h
+
+# API Keys / Tokens
+.env
+.env.local
+
+# Backup files
+*.bak
+*.old
+
+# Python cache (if dashboard scripts are added later)
+__pycache__/
+*.pyc
+
+# Node modules (if dashboard frontend is added later)
+node_modules/
+
+# Package locks (optional)
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Generated reports
+reports/
+exports/
+
+# IDE settings
+.idea/
+
+# Misc
+*.swp
+*.swo
