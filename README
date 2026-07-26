@@ -72,10 +72,7 @@ const String BIN_KEY = "$2a$10$YOUR_MASTER_KEY";
 Location Coordinates (Mock/Static GPS)
 Configure the hardcoded patient coordinates (or substitute with an active GPS library like TinyGPS++ if integrating a Neo-6M module):
 
-cpp
 
-
-const String HARD_MAPS_LINK = "https://maps.app.goo.gl/sVwVgf5MxSxPY9t59";
 🔍 Code Walkthrough & Control Logic
 Non-Blocking Sampling: Vitals collection takes place in a loop that checks for falls and button-presses during each individual sample cycle. This ensures that fall detection is highly responsive, even while calculating complex heart rates.
 Fall Detection Verification State:
@@ -108,8 +105,8 @@ json
   "fall": false,
   "sos": false,
   "battery": 100,
-  "latitude": 22.990508,
-  "longitude": 88.454008,
+  "latitude": 22.990506,
+  "longitude": 88.434008,
   "healthScore": 100,
   "status": "Normal",
   "trend": "Stable",
